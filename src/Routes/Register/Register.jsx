@@ -1,13 +1,15 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import auth from "../../firebase/firebase.config";
 import { useState } from "react";
-
+import { FaEye,FaEyeSlash } from "react-icons/fa";
 
 const Register = () => {
 
     const[registerError,setRegisterError]=useState('');
 
     const[success,setSuccess]=useState('');
+
+    const[seePassword,setSeePassword]=useState(false);
 
     const hsndleRegister=e=>{
         e.preventDefault();
@@ -42,10 +44,26 @@ const Register = () => {
             <div className="mx-auto md:w-1/2">
             <h className="text-3xl">PLEASE REGISTER</h>
 
-            <form onSubmit={hsndleRegister}>
-            <input className="mb-4 w-3/4 py-2 px-4" type="email" name="email" id="" placeholder="Email" required />
+            <form className="" onSubmit={hsndleRegister}>
+            <input className="mb-4 w-full py-2 px-4" type="email" name="email" id="" placeholder="Email" required />
         <br />
-        <input className="mb-4 w-3/4 py-2 px-4" type="password" name="password" id="" placeholder="Password" required />
+
+
+        <div className="flex items-center relative ">
+        <input className="mb-4 w-full py-2 px-4  "
+        type={seePassword ? "text":"password"}
+        name="password" 
+        id=""
+        placeholder="Password"
+        required />
+
+        <span className="absolute right-2" onClick={()=>setSeePassword(!seePassword)}>
+                {
+                    seePassword? <FaEyeSlash></FaEyeSlash> :<FaEye></FaEye>
+                }
+        </span>
+        </div>
+
         <br />
         <input className="btn btn-secondary mb-4 w-3/4" type="submit" value="Register" />
         </form>

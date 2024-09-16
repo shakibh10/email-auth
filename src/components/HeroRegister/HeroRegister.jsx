@@ -1,7 +1,8 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import auth from "../../firebase/firebase.config";
 import { useState } from "react";
 import { FaEye,FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const HeroRegister = () => {
 
@@ -15,7 +16,8 @@ const HeroRegister = () => {
         e.preventDefault();
         const email=e.target.email.value;
         const password=e.target.password.value;
-        console.log(email,password);
+        const accepted=e.target.terms.checked;
+        console.log(email,password,accepted);
 
         if(password.lenght < 6){
             setHeroRegister('Password should be at least 6 characters');
@@ -26,8 +28,12 @@ const HeroRegister = () => {
             return;
 
         }
+        else if(!accepted){
+            setHeroRegister('Please accept our terms and conditions')
+            return;
+        }
 
-        // reset error
+        // reset error and success
         setHeroRegister('');
         setSuccess('');
 
@@ -36,7 +42,20 @@ const HeroRegister = () => {
         createUserWithEmailAndPassword(auth,email,password)
         .then(result=>{
             console.log(result.user);
-            setSuccess('user created successfuly');
+            if(result.user){
+              setSuccess('user created successfuly');
+            }else {
+              alert('Please verify your email address')
+            }
+           
+
+
+            // send verification emailVerified
+            sendEmailVerification(result.user)
+            .then(()=>{
+              alert('Please check your email and verify your password');
+            })
+
         })
         .catch(error=>{
             console.error(error);
@@ -52,7 +71,7 @@ const HeroRegister = () => {
 
     return (
         <div>
-            <div className="hero bg-base-200 min-h-screen">
+            <div className="hero bg-red-300 min-h-screen rounded-lg">
   <div className="hero-content flex-col lg:flex-row-reverse">
     <div className="text-center lg:text-left">
       <h1 className="text-5xl font-bold">Register now!</h1>
@@ -74,24 +93,27 @@ const HeroRegister = () => {
           </label>
 
 
-          <div className="flex items-center gap-2">
+          <div className=" relative flex items-center">
           <input 
                 type={showPassword ? "text":"password"}
                 placeholder="password" 
                 name="password" 
-                className="input input-bordered"
+                className="input input-bordered w-full"
                 required />
 
-          <span onClick={()=>setShowPassword(!showPassword)}>
+          <span className=" absolute right-2" onClick={()=>setShowPassword(!showPassword)}>
                 {
                     showPassword ? <FaEyeSlash></FaEyeSlash>:<FaEye></FaEye>
                 }
           </span>
           </div>
-
-          <label className="label">
-            <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
-          </label>
+          <br />
+          <div className="mb-4 ">
+          <input type="checkbox" name="terms" id="terms" />
+          <label  className="ml-2 " htmlFor="terms">Accept our <a href=""> Terms and Conditions</a></label>
+          </div>
+        <br />
+         
         </div>
         <div className="form-control mt-6">
           <button className="btn btn-primary">Register</button>
@@ -106,6 +128,8 @@ const HeroRegister = () => {
       {
         success && <p className="text-green-600">{success}</p>
       }
+
+        <p>Already have an account? <Link to="/login">Login</Link></p>
 
     </div>
   </div>
